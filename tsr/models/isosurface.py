@@ -17,7 +17,7 @@ class MarchingCubeHelper(IsosurfaceHelper):
     def __init__(self, resolution: int) -> None:
         super().__init__()
         self.resolution = resolution
-        self.mc_func: Callable = marching_cubes
+        self.mc_func: Callable = measure.marching_cubes
         self._grid_vertices: Optional[torch.FloatTensor] = None
 
     @property
@@ -41,7 +41,7 @@ class MarchingCubeHelper(IsosurfaceHelper):
         level: torch.FloatTensor,
     ) -> Tuple[torch.FloatTensor, torch.LongTensor]:
         level = -level.view(self.resolution, self.resolution, self.resolution)
-        v_pos, t_pos_idx, _, __ = measure.marching_cubes(
+        v_pos, t_pos_idx, _, __ = self.mc_func(
             (level.detach().cpu() if level.is_cuda else level.detach()).numpy(),
             0.0)  # self.mc_func(level.detach(), 0.0)
         v_pos = torch.from_numpy(v_pos.copy()).type(torch.FloatTensor).to(level.device)
